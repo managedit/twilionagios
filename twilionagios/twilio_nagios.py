@@ -38,12 +38,12 @@ class TwilioNagios(Resource):
 
     # Trigger the correct action
     if action == 'host':
-      response = self.host(request, hostname)
-    else if action == 'hostaction':
+      response = self.hostalert(request, hostname)
+    elif action == 'hostaction':
       response = self.hostaction(request, hostname)
-    else if action == 'service':
-      response = self.service(request, hostname, service)
-    else if action == 'serviceaction':
+    elif action == 'service':
+      response = self.servicealert(request, hostname, service)
+    elif action == 'serviceaction':
       response = self.serviceaction(request, hostname, service)
 
     return response
@@ -56,7 +56,7 @@ class TwilioNagios(Resource):
     response = """
 <Response>
   <Say>ALERT! Host %s is %s, I repeat, the host %s is %s</Say>
-  <Gather action="/hostaction/%s/host" method="GET">
+  <Gather action="/hostaction/%s/host" method="GET" numDigits="1">
     <Say>Press 1 to acknowledge</Say>
     <Say>Press 2 to disable alerts for this host</Say>
   </Gather>
@@ -70,9 +70,26 @@ class TwilioNagios(Resource):
     return response
 
   def hostaction(self, request, hostname):
-    response = """
+    digit = int(request.args['Digits'][0])
+
+    if digit == 1:
+      # Acknowledge Service Issue
+      response = """
 <Response>
-  <Say>This is a todo..</Say>
+  <Say>Acknowledging this service issue. Goodbye!</Say>
+</Response> """
+
+    elif digit == 2:
+      # Disable Host Alerts
+      response = """
+<Response>
+  <Say>Disabling alerts for this host. Goodbye!</Say>
+</Response> """
+
+    else:
+      response = """
+<Response>
+  <Say>Invalid choice. Goodbye!</Say>
 </Response> """
 
     return response
@@ -85,8 +102,8 @@ class TwilioNagios(Resource):
     response = """
 <Response>
   <Say>ALERT! Service %s on host %s is %s, I repeat, Service %s on host %s is %s</Say>
-  <Gather action="/serviceaction/%s/%s" method="GET">
-    <Say>Press 1 to acknowledge</Say>
+  <Gather action="/serviceaction/%s/%s" method="GET" numDigits="1">
+    <Say>Press 1 to acknowledge this service issue</Say>
     <Say>Press 2 to disable alerts for this service</Say>
   </Gather>
   <Say>We didn't receive any input. Goodbye!</Say>
@@ -102,9 +119,26 @@ class TwilioNagios(Resource):
     return response
 
   def serviceaction(self, request, hostname, service):
-    response = """
+    digit = int(request.args['Digits'][0])
+
+    if digit == 1:
+      # Acknowledge Host Issue
+      response = """
 <Response>
-  <Say>This is a todo..</Say>
+  <Say>Acknowledging this host issue. Goodbye!</Say>
+</Response> """
+
+    elif digit == 2:
+      # Disable Host Alerts
+      response = """
+<Response>
+  <Say>Disabling alerts for this host. Goodbye!</Say>
+</Response> """
+
+    else:
+      response = """
+<Response>
+  <Say>Invalid choice. Goodbye!</Say>
 </Response> """
 
   def parse_objects(self):
