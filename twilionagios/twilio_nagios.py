@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import re
+import urllib
 from syslog import syslog
 from twisted.web.resource import Resource
 
@@ -64,7 +65,7 @@ class TwilioNagios(Resource):
                    HOST_STATE_MSG[state],
                    hostname,
                    HOST_STATE_MSG[state],
-                   hostname)
+                   urllib.quote_plus(hostname))
 
     return response
 
@@ -95,8 +96,8 @@ class TwilioNagios(Resource):
                    service,
                    hostname,
                    SERVICE_STATE_MSG[state],
-                   hostname,
-                   service)
+                   urllib.quote_plus(hostname),
+                   urllib.quote_plus(service))
 
     return response
 
