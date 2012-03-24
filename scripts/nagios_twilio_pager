@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import urllib
+from twilio.rest import TwilioRestClient
+
+config = {}
+
+# Twilio Configuration
+config['ACCOUNT_SID'] = os.environ['ACCOUNT_SID']
+config['ACCOUNT_TOKEN'] = os.environ['ACCOUNT_TOKEN']
+config['CALLER_ID'] = os.environ['CALLER_ID']
+config['MONITOR_URL'] = os.environ['MONITOR_URL']
+
+# Create a Twilio REST account object using your Twilio account ID and token
+client = TwilioRestClient(config['ACCOUNT_SID'], config['ACCOUNT_TOKEN'])
+
+# Parse command line arguments
+number = sys.argv[1]
+type = sys.argv[2]
+service = sys.argv[3]
+host = sys.argv[4]
+
+# Make the call
+client.calls.create(number,
+	                config['CALLER_ID'],
+	                '%s/%s/%s/%s' % (config['MONITOR_URL'],
+	                	             type,
+	                	             urllib.quote_plus(host),
+	                	             urllib.quote_plus(service)))
