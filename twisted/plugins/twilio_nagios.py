@@ -11,7 +11,8 @@ from twilionagios import TwilioNagios
 class Options(usage.Options):
   optParameters = [['port', 'p', 8080, 'port to run the twilio responder on'],
                    ['objects', 'o', '/var/cache/nagios3/objects.cache', 'location of nagios object cache'],
-                   ['status', 's', '/var/cache/nagios3/status.dat', 'location of the nagios status data file']
+                   ['status', 's', '/var/cache/nagios3/status.dat', 'location of the nagios status data file'],
+                   ['external', 'e', '/var/lib/nagios3/rw/nagios.cmd', 'location of the nagios external command file']
                   ]
 
 class ServiceMaker(object):
@@ -21,7 +22,7 @@ class ServiceMaker(object):
   options = Options
 
   def makeService(self, options):
-    site = server.Site(TwilioNagios(options['objects'], options['status']))
+    site = server.Site(TwilioNagios(options['objects'], options['status'], options['external']))
     return internet.TCPServer(int(options['port']),site)
 
 serviceMaker = ServiceMaker()

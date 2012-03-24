@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import re
 import urllib
+import sys
 from syslog import syslog
 from twisted.web.resource import Resource
 
@@ -19,9 +20,10 @@ SERVICE_STATE_MSG = {
 class TwilioNagios(Resource):
   isLeaf = True
 
-  def __init__(self, objects, status):
-    self.objects = objects
-    self.status = status
+  def __init__(self, objects_file, status_file, external_file):
+    self.objects = objects_file
+    self.status = status_file
+    self.external = external_file
 
   def render(self, request):
     request.setHeader('Content-Type', 'text/xml')
@@ -79,6 +81,9 @@ class TwilioNagios(Resource):
   <Say>Acknowledging this service issue. Goodbye!</Say>
 </Response> """
 
+      with open(self.external, "w") as f:
+        f.write("[0] ACKNOWLEDGE_HOST_PROBLEM;%s;1;1;1;Twilio;Ackd via Twilio\n" % (hostname))
+
     elif digit == 2:
       # Disable Host Alerts
       response = """
@@ -86,11 +91,15 @@ class TwilioNagios(Resource):
   <Say>Disabling alerts for this host. Goodbye!</Say>
 </Response> """
 
+      with open(self.external, "w") as f:
+        f.write("[0] DISABLE_HOST_NOTIFICATIONS;%s\n" % (hostname))
+
     else:
       response = """
 <Response>
-  <Say>Invalid choice. Goodbye!</Say>
-</Response> """
+  <Say>Invalid choice.</Say>
+  <Redirect method="GET">/host/%s/host</Redirect>
+</Response> """ % (urllib.quote_plus(hostname))
 
     return response
 
@@ -122,24 +131,34 @@ class TwilioNagios(Resource):
     digit = int(request.args['Digits'][0])
 
     if digit == 1:
-      # Acknowledge Host Issue
+      # Acknowledge Service Issue
       response = """
 <Response>
-  <Say>Acknowledging this host issue. Goodbye!</Say>
+  <Say>Acknowledging this service issue. Goodbye!</Say>
 </Response> """
 
+      with open(self.external, "w") as f:
+        f.write("[0] ACKNOWLEDGE_SVC_PROBLEM;%s;%s;1;1;1;Twilio;Ackd via Twilio\n" % (hostname, service))
+
     elif digit == 2:
-      # Disable Host Alerts
+      # Disable Service Alerts
       response = """
 <Response>
-  <Say>Disabling alerts for this host. Goodbye!</Say>
+  <Say>Disabling alerts for this service. Goodbye!</Say>
 </Response> """
+
+      with open(self.external, "w") as f:
+        f.write("[0] DISABLE_SVC_NOTIFICATIONS;%s;%s\n" % (hostname, service))
 
     else:
       response = """
 <Response>
-  <Say>Invalid choice. Goodbye!</Say>
-</Response> """
+  <Say>Invalid choice.</Say>
+  <Redirect method="GET">/host/%s/%s</Redirect>
+</Response> """ % (urllib.quote_plus(hostname),
+                   urllib.quote_plus(service))
+
+    return response
 
   def parse_objects(self):
     filename = self.objects
