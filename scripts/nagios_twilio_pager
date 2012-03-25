@@ -17,15 +17,17 @@ config['MONITOR_URL'] = os.environ['MONITOR_URL']
 client = TwilioRestClient(config['ACCOUNT_SID'], config['ACCOUNT_TOKEN'])
 
 # Parse command line arguments
-number = sys.argv[1]
-type = sys.argv[2]
-service = sys.argv[3]
-host = sys.argv[4]
+notification_type = sys.argv[1]
+number = sys.argv[2]
+type = sys.argv[3]
+service = sys.argv[4]
+host = sys.argv[5]
 
-# Make the call
-client.calls.create(number,
-	                config['CALLER_ID'],
-	                '%s/%s/%s/%s' % (config['MONITOR_URL'],
-	                	             type,
-	                	             urllib.quote_plus(host),
-	                	             urllib.quote_plus(service)))
+if notification_type != 'ACKNOWLEDGEMENT':
+    # Make the call
+    client.calls.create(number,
+                        config['CALLER_ID'],
+                        '%s/%s/%s/%s' % (config['MONITOR_URL'],
+                                         type,
+                                         urllib.quote_plus(host),
+                                         urllib.quote_plus(service)))
