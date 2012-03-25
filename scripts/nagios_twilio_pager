@@ -23,7 +23,9 @@ type = sys.argv[3]
 service = sys.argv[4]
 host = sys.argv[5]
 
-if notification_type != 'ACKNOWLEDGEMENT':
+ignore_notification_types = ['ACKNOWLEDGEMENT', 'OK']
+
+if notification_type not in ignore_notification_types:
     # Make the call
     client.calls.create(number,
                         config['CALLER_ID'],
