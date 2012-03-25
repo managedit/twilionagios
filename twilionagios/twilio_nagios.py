@@ -75,6 +75,7 @@ class TwilioNagios(Resource):
 
   def hostaction(self, request, hostname):
     digit = int(request.args['Digits'][0])
+    cid = request.args['To'][0]
 
     if digit == 1:
       # Acknowledge Service Issue
@@ -84,7 +85,7 @@ class TwilioNagios(Resource):
 </Response> """
 
       with open(self.external, "w") as f:
-        f.write("[0] ACKNOWLEDGE_HOST_PROBLEM;%s;1;1;1;Twilio;Ackd via Twilio\n" % (hostname))
+        f.write("[0] ACKNOWLEDGE_HOST_PROBLEM;%s;1;1;1;Twilio;Ackd via Twilio by %s\n" % (hostname, cid))
 
     elif digit == 2:
       # Disable Host Alerts
@@ -131,6 +132,7 @@ class TwilioNagios(Resource):
 
   def serviceaction(self, request, hostname, service):
     digit = int(request.args['Digits'][0])
+    cid = request.args['To'][0]
 
     if digit == 1:
       # Acknowledge Service Issue
@@ -140,7 +142,7 @@ class TwilioNagios(Resource):
 </Response> """
 
       with open(self.external, "w") as f:
-        f.write("[0] ACKNOWLEDGE_SVC_PROBLEM;%s;%s;1;1;1;Twilio;Ackd via Twilio\n" % (hostname, service))
+        f.write("[0] ACKNOWLEDGE_SVC_PROBLEM;%s;%s;1;1;1;Twilio;Ackd via Twilio by %s\n" % (hostname, service, cid))
 
     elif digit == 2:
       # Disable Service Alerts
