@@ -36,7 +36,7 @@ class TwilioNagios(Resource):
     try:
       action, hostname, service = request.postpath
       hostname = urllib.unquote_plus(hostname)
-      service = urllib.unquote_plus(hostname)
+      service = urllib.unquote_plus(service)
     except (KeyError, ValueError):
       return '<Response/>'
 
